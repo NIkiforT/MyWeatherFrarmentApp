@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MyWeatherFrarmentApp</string>
+    <string name="city_name_text">City Name</string>
+    <string name="temperature_parametr">Temperature</string>
+    <string name="speed">Speed</string>
+    <string name="pressure">Pressure</string>
+    <string name="enter_a_name_city">Enter a name city</string>
+    <string name="popular_city">Popular city:</string>
+    <string name="show_speed">Show speed</string>
+    <string name="show_pressure">Show pressure</string>
+    <string name="moscow">Moscow</string>
+    <string name="saint_petersburg">Saint Petersburg</string>
+    <string name="sochi">Sochi</string>
+    <string name="setting">Setting</string>
+    <string name="back">Back</string>
+    <string name="about_city">About City</string>
+    <string name="wiki_url">https://ru.wikipedia.org/wiki/</string>
+</resources>
