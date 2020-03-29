@@ -7,13 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Objects;
 
@@ -23,6 +23,7 @@ import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedSpee
 import nikifor.tatarkin.myweatherfrarmentapp.CoatContainer;
 import nikifor.tatarkin.myweatherfrarmentapp.Constants;
 import nikifor.tatarkin.myweatherfrarmentapp.R;
+import nikifor.tatarkin.myweatherfrarmentapp.recyclerView.RecyclerCitiesAdapter;
 
 public class CitiesFragment extends Fragment implements Constants {
 
@@ -32,19 +33,19 @@ public class CitiesFragment extends Fragment implements Constants {
     private static final String KEY_TEXT_PRESSURE = "key pressure";
 
 
-
     private boolean isExistInfo; //Можно ли расположить рядом информацию о погоде.
     private int currentPosition = 0; //позиция в списке городов
     private boolean checkedSpeedBoolean; //показать скрыть скорость ветра
     private boolean checkedPressureBoolean; //показать скрыть давление
 
-    private LinearLayout linearCities;
+    private String[] citiesContainer; //Список город.
+
     private CheckBox checkSpeed;
     private CheckBox checkPressure;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_cities, container, false);
     }
 
@@ -52,8 +53,11 @@ public class CitiesFragment extends Fragment implements Constants {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initListCities(view);
+        //Заполнение массива из ресурсов.
+        citiesContainer = getResources().getStringArray(R.array.cities);
+
         initChecks(view);
+        initRecyclerViewCities(view);
 
         //Запись в boolean переменные информацию о показе скорости ветра и температуры.
         isCheckedSpeed();
@@ -63,6 +67,27 @@ public class CitiesFragment extends Fragment implements Constants {
         clickSpeedBox();
         clickPressureBox();
     }
+
+    //Инициализация RecyclerView со списком городов.
+    //Добавлениея слушателя.
+    private void initRecyclerViewCities(View view) {
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_cities);
+        RecyclerCitiesAdapter adapter = new RecyclerCitiesAdapter(citiesContainer);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+
+
+        //Добавление слушателя.
+        adapter.SetOnItemClickListener(new RecyclerCitiesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                currentPosition = position;
+                showCoatOfInfo();
+            }
+        });
+    }
+
 
     //Нажаты ли чек боксы - начало
     private void isCheckedPressure() {
@@ -113,42 +138,6 @@ public class CitiesFragment extends Fragment implements Constants {
         checkSpeed.setChecked(true);
         checkPressure = view.findViewById(R.id.checkBoxPressure);
         checkPressure.setChecked(true);
-    }
-
-    //Инициализация списка городов
-    private void initListCities(View view) {
-        linearCities = view.findViewById(R.id.container_cities);
-        linearCities.setPadding(10,0,40,0);
-        String[] cities = getResources().getStringArray(R.array.cities);
-
-        //Внешние отступы
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
-        layoutParams.setMargins(0,15,0,0);
-
-        // В этом цикле создаем элемент TextView,
-        // заполняем его значениями,
-        // и добавляем на экран.
-        //создаем обработку касания на элемент
-        for (int i = 0; i < cities.length; i++) {
-            String city = cities[i];
-            TextView tv = new TextView(getContext());
-            tv.setText(city);
-            tv.setTextSize(28);
-            tv.setBackground(getContext().getDrawable(R.drawable.button_stroke_black95_press_white));
-            tv.setPadding(15, 0,0,0);
-            tv.setGravity(View.TEXT_ALIGNMENT_GRAVITY);
-            tv.setLayoutParams(layoutParams);
-            linearCities.addView(tv);
-            final int fiPosition = i;
-            tv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    currentPosition = fiPosition;
-                    showCoatOfInfo();
-                }
-            });
-        }
     }
 
 
@@ -217,7 +206,6 @@ public class CitiesFragment extends Fragment implements Constants {
         EventBus.getBus().register(this);
 
     }
-
     @Override
     public void onStop() {
         EventBus.getBus().unregister(this);

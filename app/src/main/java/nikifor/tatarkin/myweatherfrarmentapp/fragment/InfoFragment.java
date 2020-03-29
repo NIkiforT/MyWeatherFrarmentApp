@@ -25,7 +25,7 @@ import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedSpee
 import nikifor.tatarkin.myweatherfrarmentapp.CoatContainer;
 import nikifor.tatarkin.myweatherfrarmentapp.Constants;
 import nikifor.tatarkin.myweatherfrarmentapp.R;
-import nikifor.tatarkin.myweatherfrarmentapp.TemperatureAdapter;
+import nikifor.tatarkin.myweatherfrarmentapp.recyclerView.TemperatureAdapter;
 
 import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 

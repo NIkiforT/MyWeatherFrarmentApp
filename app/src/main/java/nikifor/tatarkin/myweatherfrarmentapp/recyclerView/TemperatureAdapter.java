@@ -1,4 +1,4 @@
-package nikifor.tatarkin.myweatherfrarmentapp;
+package nikifor.tatarkin.myweatherfrarmentapp.recyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +8,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class TemperatureAdapter extends RecyclerView.Adapter<TemperatureAdapter.ViewHolder> {
+import nikifor.tatarkin.myweatherfrarmentapp.R;
 
+public class TemperatureAdapter extends RecyclerView.Adapter<TemperatureAdapter.ViewHolder> {
     private String[] data;
 
     public TemperatureAdapter(String[] data){
         this.data = data;
     }
-
 
     @NonNull
     @Override
