@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="enter_a_name_city">Введите название города</string>
-    <string name="popular_city">Популярные города:</string>
     <string name="show_speed">Показать скорость</string>
     <string name="show_pressure">Показать давление</string>
     <string name="moscow">Москва</string>
-    <string name="saint_petersburg">Санкт-Петербург</string>
-    <string name="sochi">Сочи</string>
     <string name="setting">Настройки</string>
     <string name="app_name">Погода</string>
     <string name="city_name_text">Название города</string>

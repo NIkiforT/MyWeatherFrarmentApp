@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="@string/moscow"
+        android:text=""
         android:textColor="@color/colorText"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,25 +38,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="@string/temperature_parametr"
+        android:text="+ 15'"
         android:textColor="@color/colorText"
-        android:textSize="30sp"
+        android:textSize="50sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idCity" />
 
+    <LinearLayout
+        android:id="@+id/container_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/temperature">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/znak_temperatyra"
+            android:layout_marginRight="@dimen/padding15"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/container1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temperature">
+        app:layout_constraintTop_toBottomOf="@+id/container_temperature">
 
         <LinearLayout
             android:id="@+id/container2"
@@ -69,8 +88,8 @@
 
             <ImageView
                 android:id="@+id/speedWindImag"
-                android:layout_width="150dp"
-                android:layout_height="125dp"
+                android:layout_width="96dp"
+                android:layout_height="80dp"
                 app:srcCompat="@drawable/speed_wind" />
 
             <TextView
@@ -94,8 +113,8 @@
 
             <ImageView
                 android:id="@+id/pressureImag"
-                android:layout_width="150dp"
-                android:layout_height="125dp"
+                android:layout_width="96dp"
+                android:layout_height="80dp"
                 app:srcCompat="@drawable/pressure" />
 
             <TextView

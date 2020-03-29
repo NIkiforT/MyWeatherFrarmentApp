@@ -1,14 +1,8 @@
-package nikifor.tatarkin.myweatherfrarmentapp;
+package nikifor.tatarkin.myweatherfrarmentapp.fragment;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +10,19 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import java.util.Objects;
+
+import nikifor.tatarkin.myweatherfrarmentapp.CitiesWeatherInfo;
 import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedPressureEvent;
 import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedSpeedEvent;
+import nikifor.tatarkin.myweatherfrarmentapp.CoatContainer;
+import nikifor.tatarkin.myweatherfrarmentapp.Constants;
+import nikifor.tatarkin.myweatherfrarmentapp.R;
 
 public class CitiesFragment extends Fragment implements Constants {
 
@@ -28,14 +33,14 @@ public class CitiesFragment extends Fragment implements Constants {
 
 
 
-    boolean isExistInfo; //Можно ли расположить рядом информацию о погоде.
-    int currentPosition = 0; //позиция в списке городов
-    boolean checkedSpeedBoolean; //показать скрыть скорость ветра
-    boolean checkedPressureBoolean; //показать скрыть давление
+    private boolean isExistInfo; //Можно ли расположить рядом информацию о погоде.
+    private int currentPosition = 0; //позиция в списке городов
+    private boolean checkedSpeedBoolean; //показать скрыть скорость ветра
+    private boolean checkedPressureBoolean; //показать скрыть давление
 
-    LinearLayout linearCities;
-    CheckBox checkSpeed;
-    CheckBox checkPressure;
+    private LinearLayout linearCities;
+    private CheckBox checkSpeed;
+    private CheckBox checkPressure;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,9 +55,11 @@ public class CitiesFragment extends Fragment implements Constants {
         initListCities(view);
         initChecks(view);
 
+        //Запись в boolean переменные информацию о показе скорости ветра и температуры.
         isCheckedSpeed();
         isCheckedPressure();
 
+        //Обработка чекбоксов при открытии второго фрагмента на первой активити.
         clickSpeedBox();
         clickPressureBox();
     }
@@ -155,7 +162,7 @@ public class CitiesFragment extends Fragment implements Constants {
             // Если есть необходимость, то выведем информацию о погоде
             if (detail == null || detail.getIndex() != currentPosition) {
                 // Создаем новый фрагмент с текущей позицией для вывода погоды
-                detail = InfoFragment.create(currentPosition, checkedSpeedBoolean, checkedPressureBoolean);
+                detail = InfoFragment.create(getCoatContainer());
                 // Выполняем транзакцию по замене фрагмента
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.replace(R.id.coat_of_info, detail);  // замена фрагмента
@@ -165,11 +172,9 @@ public class CitiesFragment extends Fragment implements Constants {
         } else {
             // Если нельзя вывести информацию рядом, откроем вторую activity
             Intent intent = new Intent();
-            intent.setClass(getActivity(), CitiesWeatherInfo.class);
+            intent.setClass(Objects.requireNonNull(getActivity()), CitiesWeatherInfo.class);
             // и передадим туда параметры
-            intent.putExtra(INDEX_CITY, currentPosition);
-            intent.putExtra(SPEED_VISIBLE, checkSpeed.isChecked());
-            intent.putExtra(PRESSURE_VISIBLE, checkPressure.isChecked());
+            intent.putExtra(INDEX_CITY, getCoatContainer());
             startActivity(intent);
         }
     }
@@ -194,6 +199,18 @@ public class CitiesFragment extends Fragment implements Constants {
         });
     }
 
+    //Создание контейнера с информацией о позиции, названии города и передача состояния чек боксов (показать/скрыть)
+    private CoatContainer getCoatContainer() {
+        String[] cities = getResources().getStringArray(R.array.cities);
+        CoatContainer container = new CoatContainer();
+        container.position = currentPosition;
+        container.cityName = cities[currentPosition];
+        container.visibilitySpeed = checkSpeed.isChecked();
+        container.visibilityPressure = checkPressure.isChecked();
+        return container;
+    }
+
+    //Переопределенные методы для использования EventBus.
     @Override
     public void onStart() {
         super.onStart();
