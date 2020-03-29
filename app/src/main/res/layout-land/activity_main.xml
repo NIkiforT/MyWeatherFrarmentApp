@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <!-- Фрагмент с выбором городов -->
-    <fragment android:name="nikifor.tatarkin.myweatherfrarmentapp.InfoFragment"
+    <fragment android:name="nikifor.tatarkin.myweatherfrarmentapp.fragment.CitiesFragment"
         android:id="@+id/cities"
         android:layout_weight="0.7"
         android:layout_width="0px"
