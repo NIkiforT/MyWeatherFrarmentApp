@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import nikifor.tatarkin.myweatherfrarmentapp.fragment.InfoFragment;
+
 public class CitiesWeatherInfo extends AppCompatActivity {
 
     @Override

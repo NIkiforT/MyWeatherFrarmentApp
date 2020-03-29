@@ -1,4 +1,4 @@
-package nikifor.tatarkin.myweatherfrarmentapp;
+package nikifor.tatarkin.myweatherfrarmentapp.fragment;
 
 import com.squareup.otto.Bus;
 
