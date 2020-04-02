@@ -46,8 +46,6 @@ public class RecyclerCitiesAdapter extends RecyclerView.Adapter<RecyclerCitiesAd
     }
 
 
-
-
     class ViewHolder extends RecyclerView.ViewHolder{
         TextView listItemCitiesTextView;
 

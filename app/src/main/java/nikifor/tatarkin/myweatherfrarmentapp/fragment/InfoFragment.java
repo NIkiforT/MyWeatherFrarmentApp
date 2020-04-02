@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
 
 import java.util.Objects;
@@ -36,6 +39,8 @@ public class InfoFragment extends Fragment implements Constants {
     private TextView textSpeedWind;
     private TextView textPressure;
     private TextView textNameCity;
+    private ImageView imageSpeedWind;
+    private ImageView imagePressure;
 
     private RecyclerView recyclerView;
 
@@ -62,6 +67,15 @@ public class InfoFragment extends Fragment implements Constants {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public String getNameCity(){
+        CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
+            try {
+                return coatContainer.cityName;
+            }catch (Exception e){
+                return "-";
+            }
     }
 
     //Получить информацию о том, нужно ли показывать скорость ветра
@@ -132,6 +146,8 @@ public class InfoFragment extends Fragment implements Constants {
         textSpeedWind = view.findViewById(R.id.textSpeedWind);
         textPressure = view.findViewById(R.id.textPressure);
         textNameCity = view.findViewById(R.id.idCity);
+        imageSpeedWind = view.findViewById(R.id.speedWindImag);
+        imagePressure = view.findViewById(R.id.pressureImag);
     }
 
     //Открытие браузера
@@ -139,27 +155,34 @@ public class InfoFragment extends Fragment implements Constants {
         buttonAboutCityBrowser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = getString(R.string.wiki_url).toString() + textNameCity.getText().toString();
-                Uri uri = Uri.parse(url);
-                Intent browser = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(browser);
+                Snackbar.make(view, "Open the browser?", Snackbar.LENGTH_LONG)
+                        .setAction("Open", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String url = getString(R.string.wiki_url).toString() + textNameCity.getText().toString();
+                                Uri uri = Uri.parse(url);
+                                Intent browser = new Intent(Intent.ACTION_VIEW, uri);
+                                startActivity(browser);
+                            }
+                        }).show();
             }
         });
     }
 
     //Запись названия города
     private void setTextNameCity(){
-        String[] cities = getResources().getStringArray(R.array.cities);
-        textNameCity.setText(cities[getIndex()]);
+        textNameCity.setText(getNameCity());
     }
 
-    //Определие скрыть/показать давление.
+    //Определие скрыть/показать давление при открытии новой Activity.
     private void setVisibilityPressure() {
         textPressure.setVisibility(getVisibPressure()? View.VISIBLE : View.INVISIBLE);
+        imagePressure.setVisibility(getVisibPressure()? View.VISIBLE : View.INVISIBLE);
     }
-    //Определение скрыть/показать скорость.
+    //Определение скрыть/показать скорость при открытии новой Activity
     private void setVisibilitySpeed() {
         textSpeedWind.setVisibility(getVisibSpeed()? View.VISIBLE : View.GONE);
+        imageSpeedWind.setVisibility(getVisibSpeed()? View.VISIBLE : View.GONE);
     }
 
 
@@ -168,12 +191,14 @@ public class InfoFragment extends Fragment implements Constants {
     @SuppressWarnings("unused")
     public void onFragmentBtnClickEvent(FragmentBtnClickedSpeedEvent event) {
         textSpeedWind.setVisibility(event.visibilitySpeed? View.VISIBLE : View.GONE);
+        imageSpeedWind.setVisibility(event.visibilitySpeed? View.VISIBLE : View.GONE);
     }
 
     @Subscribe
     @SuppressWarnings("unused")
     public void onFragmentBtnClickEvent(FragmentBtnClickedPressureEvent event) {
         textPressure.setVisibility(event.visibilityPressure? View.VISIBLE : View.GONE);
+        imagePressure.setVisibility(event.visibilityPressure? View.VISIBLE : View.GONE);
     }
     //Показать/Скрыть скорость ветка и давление - конец.
 

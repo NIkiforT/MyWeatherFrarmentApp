@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +16,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import nikifor.tatarkin.myweatherfrarmentapp.CitiesWeatherInfo;
 import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedPressureEvent;
@@ -29,6 +33,7 @@ public class CitiesFragment extends Fragment implements Constants {
 
     private static final String KEY_CURRENT_CITY = "CurrentCity";
     private static final String INDEX_CITY = "index";
+    private static final String KEY_TEXT_NAME_CITY = "key city name";
     private static final String KEY_TEXT_SPEED = "key speed";
     private static final String KEY_TEXT_PRESSURE = "key pressure";
 
@@ -38,10 +43,16 @@ public class CitiesFragment extends Fragment implements Constants {
     private boolean checkedSpeedBoolean; //показать скрыть скорость ветра
     private boolean checkedPressureBoolean; //показать скрыть давление
 
-    private String[] citiesContainer; //Список город.
+    private String[] citiesContainer;//Список город.
+    private String nameCity; //Переменная для хранения названия выбранного города. Либо из editText, либо из списка (RecyclerView)
 
     private CheckBox checkSpeed;
     private CheckBox checkPressure;
+    private TextInputEditText editTextCityName;
+
+
+    //Для определения правильного ввода города
+    private Pattern checkNameCity = Pattern.compile("^[А-Я][а-я]{2,}$");
 
 
     @Override
@@ -55,17 +66,35 @@ public class CitiesFragment extends Fragment implements Constants {
 
         //Заполнение массива из ресурсов.
         citiesContainer = getResources().getStringArray(R.array.cities);
+        nameCity = citiesContainer[0];
 
-        initChecks(view);
+        initViews(view);
         initRecyclerViewCities(view);
 
         //Запись в boolean переменные информацию о показе скорости ветра и температуры.
         isCheckedSpeed();
         isCheckedPressure();
 
+        //Проверка правильности ввода названия города.
+        textNameCityOnFocus();
+
         //Обработка чекбоксов при открытии второго фрагмента на первой активити.
         clickSpeedBox();
         clickPressureBox();
+
+    }
+
+    private void initViews(View view) {
+
+        //инициализация чек боксов.
+        checkSpeed = view.findViewById(R.id.checkBoxSpeed);
+        checkSpeed.setChecked(true);
+        checkPressure = view.findViewById(R.id.checkBoxPressure);
+        checkPressure.setChecked(true);
+
+        //Иинициализация EditText и запись в него первого города из списка.
+        editTextCityName = view.findViewById(R.id.inputCityName);
+        editTextCityName.setText(nameCity);
     }
 
     //Инициализация RecyclerView со списком городов.
@@ -83,11 +112,15 @@ public class CitiesFragment extends Fragment implements Constants {
             @Override
             public void onItemClick(View view, int position) {
                 currentPosition = position;
+                nameCity = citiesContainer[position];
+                editTextCityName.setText(citiesContainer[position]);
                 showCoatOfInfo();
+
+                validate(editTextCityName, checkNameCity, getString(R.string.error_name_city));
+
             }
         });
     }
-
 
     //Нажаты ли чек боксы - начало
     private void isCheckedPressure() {
@@ -113,7 +146,8 @@ public class CitiesFragment extends Fragment implements Constants {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_CITY, 0);
             checkedSpeedBoolean = savedInstanceState.getBoolean(KEY_TEXT_SPEED);
             checkedPressureBoolean = savedInstanceState.getBoolean(KEY_TEXT_PRESSURE);
-
+            nameCity = savedInstanceState.getString(KEY_TEXT_NAME_CITY);
+            editTextCityName.setText(nameCity); //Запись названия города из переменной в editText
         }
 
         // Если можно показать рядом погоду, то сделаем это
@@ -128,16 +162,9 @@ public class CitiesFragment extends Fragment implements Constants {
         outState.putInt(KEY_CURRENT_CITY, currentPosition);
         outState.putBoolean(KEY_TEXT_SPEED, checkedSpeedBoolean);
         outState.putBoolean(KEY_TEXT_PRESSURE, checkedPressureBoolean);
+        outState.putString(KEY_TEXT_NAME_CITY, nameCity);
 
         super.onSaveInstanceState(outState);
-    }
-
-    //Инициализация чекбоксов
-    private void initChecks(View view) {
-        checkSpeed = view.findViewById(R.id.checkBoxSpeed);
-        checkSpeed.setChecked(true);
-        checkPressure = view.findViewById(R.id.checkBoxPressure);
-        checkPressure.setChecked(true);
     }
 
 
@@ -149,7 +176,7 @@ public class CitiesFragment extends Fragment implements Constants {
                     getFragmentManager().findFragmentById(R.id.coat_of_info);
 
             // Если есть необходимость, то выведем информацию о погоде
-            if (detail == null || detail.getIndex() != currentPosition) {
+            if (detail == null || detail.getNameCity() != nameCity) {
                 // Создаем новый фрагмент с текущей позицией для вывода погоды
                 detail = InfoFragment.create(getCoatContainer());
                 // Выполняем транзакцию по замене фрагмента
@@ -193,7 +220,7 @@ public class CitiesFragment extends Fragment implements Constants {
         String[] cities = getResources().getStringArray(R.array.cities);
         CoatContainer container = new CoatContainer();
         container.position = currentPosition;
-        container.cityName = cities[currentPosition];
+        container.cityName = nameCity;
         container.visibilitySpeed = checkSpeed.isChecked();
         container.visibilityPressure = checkPressure.isChecked();
         return container;
@@ -212,4 +239,48 @@ public class CitiesFragment extends Fragment implements Constants {
         super.onStop();
 
     }
+
+
+    // Проверка на правильность ввода названия города и фокуса на editText.
+    //Если Город введен корректно и фокуса на view нет, то открывается фрагмент с информацией о погоде.
+    //Если название введено неправильно - то появится ошибка.
+    private void textNameCityOnFocus(){
+        editTextCityName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                String value = editTextCityName.getText().toString();
+                if (hasFocus) return;
+                TextView tv = (TextView) view;
+                if (checkNameCity.matcher(value).matches()){
+                    nameCity = value;
+                    showCoatOfInfo();
+                    validate(tv, checkNameCity, getString(R.string.error_name_city));
+                }else {
+                    validate(tv, checkNameCity, getString(R.string.error_name_city));
+                }
+            }
+        });
+    }
+
+    // Для сравнения правильного ввода города.
+    // Валидация
+    private void validate(TextView tv, Pattern check, String message){
+        String value = tv.getText().toString();
+        if (check.matcher(value).matches()) {    // Проверим на основе регулярных выражений
+            hideError(tv);
+        } else {
+            showError(tv, message);
+        }
+    }
+
+    // Вывод ошибки при неправильном вводе названия города.
+    // Показать ошибку
+    private void showError(TextView view, String message) {
+        view.setError(message);
+    }
+    // спрятать ошибку
+    private void hideError(TextView view) {
+        view.setError(null);
+    }
+
 }

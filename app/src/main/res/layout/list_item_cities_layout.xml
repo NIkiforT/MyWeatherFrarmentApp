@@ -6,7 +6,7 @@
         android:id="@+id/list_item_cities_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
+        android:textSize="22sp"
         android:textAlignment="center"
         android:textColor="@color/colorText"
         android:background="@drawable/button_stroke_black95_press_white"
