@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="enter_a_name_city">Введите название города</string>
-    <string name="popular_city">Популярные города:</string>
     <string name="show_speed">Показать скорость</string>
     <string name="show_pressure">Показать давление</string>
-    <string name="moscow">Москва</string>
-    <string name="saint_petersburg">Санкт-Петербург</string>
-    <string name="sochi">Сочи</string>
     <string name="setting">Настройки</string>
     <string name="app_name">Погода</string>
-    <string name="city_name_text">Название города</string>
-    <string name="temperature_parametr">Температура</string>
     <string name="speed">Скорость ветра</string>
     <string name="pressure">Давление</string>
     <string name="back">Назад</string>
     <string name="about_city">О городе</string>
     <string name="wiki_url">https://ru.wikipedia.org/wiki/</string>
+    <string name="city">Название города</string>
+    <string name="error_name_city">Неправильное название города</string>
+    <string name="about_the_developer">Об авторе</string>
+    <string name="about_developer_description">Приложение разработано в учебных целях, а именно, чтобы разобраться с Activity, Макетами и Fragment, создать первый RecyclerView, поработать с компонентами приложения и познать материальный дизайн. \nЗдесь все выглядит не в едином стиле, т.к. мне охото потрогать всё. \n\n   Никифор. 2020</string>
 </resources>
