@@ -2,24 +2,38 @@ package nikifor.tatarkin.myweatherfrarmentapp.fragment;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import nikifor.tatarkin.myweatherfrarmentapp.CitiesWeatherInfo;
 import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedPressureEvent;
@@ -27,6 +41,7 @@ import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedSpee
 import nikifor.tatarkin.myweatherfrarmentapp.CoatContainer;
 import nikifor.tatarkin.myweatherfrarmentapp.Constants;
 import nikifor.tatarkin.myweatherfrarmentapp.R;
+import nikifor.tatarkin.myweatherfrarmentapp.model.WeatherRequest;
 import nikifor.tatarkin.myweatherfrarmentapp.recyclerView.RecyclerCitiesAdapter;
 
 public class CitiesFragment extends Fragment implements Constants {
@@ -36,6 +51,10 @@ public class CitiesFragment extends Fragment implements Constants {
     private static final String KEY_TEXT_NAME_CITY = "key city name";
     private static final String KEY_TEXT_SPEED = "key speed";
     private static final String KEY_TEXT_PRESSURE = "key pressure";
+
+    private static final String TAG = "WEATHER";
+    private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=Moscow,RU&appid=";
+    private static final String WEATHER_API_KEY = "8f0bed03a60ef361aae3e25155873520";
 
 
     private boolean isExistInfo; //Можно ли расположить рядом информацию о погоде.
@@ -52,7 +71,7 @@ public class CitiesFragment extends Fragment implements Constants {
 
 
     //Для определения правильного ввода города
-    private Pattern checkNameCity = Pattern.compile("^[А-Я][а-я]{2,}$");
+    private Pattern checkNameCity = Pattern.compile("^[A-Z][a-z]{2,}$");
 
 
     @Override
@@ -115,7 +134,6 @@ public class CitiesFragment extends Fragment implements Constants {
                 nameCity = citiesContainer[position];
                 editTextCityName.setText(citiesContainer[position]);
                 showCoatOfInfo();
-
                 validate(editTextCityName, checkNameCity, getString(R.string.error_name_city));
 
             }
@@ -218,7 +236,7 @@ public class CitiesFragment extends Fragment implements Constants {
     //Создание контейнера с информацией о позиции, названии города и передача состояния чек боксов (показать/скрыть)
     private CoatContainer getCoatContainer() {
         String[] cities = getResources().getStringArray(R.array.cities);
-        CoatContainer container = new CoatContainer();
+        CoatContainer container = CoatContainer.getInstance();
         container.position = currentPosition;
         container.cityName = nameCity;
         container.visibilitySpeed = checkSpeed.isChecked();

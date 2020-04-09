@@ -2,38 +2,54 @@ package nikifor.tatarkin.myweatherfrarmentapp.fragment;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 import com.squareup.otto.Subscribe;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedPressureEvent;
 import nikifor.tatarkin.myweatherfrarmentapp.ClickedEvent.FragmentBtnClickedSpeedEvent;
 import nikifor.tatarkin.myweatherfrarmentapp.CoatContainer;
 import nikifor.tatarkin.myweatherfrarmentapp.Constants;
 import nikifor.tatarkin.myweatherfrarmentapp.R;
+import nikifor.tatarkin.myweatherfrarmentapp.model.WeatherRequest;
 import nikifor.tatarkin.myweatherfrarmentapp.recyclerView.TemperatureAdapter;
 
 import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 
 public class InfoFragment extends Fragment implements Constants {
     private static final String INDEX_CITY = "index";
+    private static final String TAG = "WEATHER";
+    private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=";
+    private static final String WEATHER_API_KEY = "240af58b6f095eb759a3ecd2d282d448";
 
     private Button buttonAboutCityBrowser;
     private TextView textSpeedWind;
@@ -41,11 +57,12 @@ public class InfoFragment extends Fragment implements Constants {
     private TextView textNameCity;
     private ImageView imageSpeedWind;
     private ImageView imagePressure;
+    private TextView textTemp;
 
     private RecyclerView recyclerView;
 
     //Фейковые данные для температуры на 3 дня.
-    private String[] listTemperature = new String[]{"+ 24'", "+ 23'", "+ 19'"};
+    private String[] listTemperature = new String[]{"-", "-", "-"};
 
     // Фабричный метод создания фрагмента
     public static InfoFragment create(CoatContainer container) {
@@ -100,6 +117,31 @@ public class InfoFragment extends Fragment implements Constants {
         }
     }
 
+    public String getTemp(){
+        CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
+        try {
+            return coatContainer.temp;
+        }catch (Exception e){
+            return "-";
+        }
+    }
+    public String getSpeed(){
+        CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
+        try {
+            return coatContainer.speed;
+        }catch (Exception e){
+            return "-";
+        }
+    }
+    public String getPressure(){
+        CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
+        try {
+            return coatContainer.pressure;
+        }catch (Exception e){
+            return "-";
+        }
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,6 +156,12 @@ public class InfoFragment extends Fragment implements Constants {
         initViews(view);
         initRecyclerView(view);
         setTextNameCity();
+        setTextSpeed();
+        setTextPressure();
+        setTextTemp();
+
+        //Закрузка данных о погоде с сервера.
+        loadWeather(view);
 
         //Показать-скрыть скоростьи давление при открытии фрагмента на новой активити.
         setVisibilitySpeed();
@@ -148,6 +196,8 @@ public class InfoFragment extends Fragment implements Constants {
         textNameCity = view.findViewById(R.id.idCity);
         imageSpeedWind = view.findViewById(R.id.speedWindImag);
         imagePressure = view.findViewById(R.id.pressureImag);
+        textTemp = view.findViewById(R.id.temperature);
+
     }
 
     //Открытие браузера
@@ -173,6 +223,17 @@ public class InfoFragment extends Fragment implements Constants {
     private void setTextNameCity(){
         textNameCity.setText(getNameCity());
     }
+
+    private void setTextTemp(){
+        textTemp.setText(getTemp());
+    }
+    private void setTextSpeed(){
+        textSpeedWind.setText(getSpeed());
+    }
+    private void setTextPressure(){
+        textPressure.setText(getPressure());
+    }
+
 
     //Определие скрыть/показать давление при открытии новой Activity.
     private void setVisibilityPressure() {
@@ -202,17 +263,70 @@ public class InfoFragment extends Fragment implements Constants {
     }
     //Показать/Скрыть скорость ветка и давление - конец.
 
-    //Переопределенные методы для использования EventBus.
+    //Переопределенные методы для использования EventBus. - начало.
     @Override
     public void onStart() {
         super.onStart();
         EventBus.getBus().register(this);
-
     }
     @Override
     public void onStop() {
         EventBus.getBus().unregister(this);
         super.onStop();
+    }
+    //Переопределенные методы для использования EventBus. - конец.
 
+    //Запрос и получение данных о погоде.
+    private void loadWeather(View view){
+        try{
+            final String cityUpdate = String.format(WEATHER_URL, textNameCity.getText().toString());
+            final URL uri = new URL(cityUpdate + WEATHER_API_KEY);
+            final Handler handler = new Handler(); // Запоминаем основной поток
+            new Thread(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.N)
+                @Override
+                public void run() {
+                    HttpsURLConnection urlConnection = null;
+                    try {
+                        urlConnection = (HttpsURLConnection) uri.openConnection();
+                        urlConnection.setRequestMethod("GET");
+                        urlConnection.setReadTimeout(10000);
+                        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                        String result = getLines(in);
+                        Gson gson = new Gson();
+                        final WeatherRequest weatherRequest = gson.fromJson(result, WeatherRequest.class);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                displayWeather(weatherRequest);
+
+                            }
+                        });
+
+                    }catch (Exception e){
+                        Log.e(TAG, "Fail connection", e);
+                        e.printStackTrace();
+                    }finally {
+                        if (null != urlConnection) {
+                            urlConnection.disconnect();
+                        }
+                    }
+                }
+            }).start();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private String getLines(BufferedReader in){
+        return in.lines().collect(Collectors.joining("\n"));
+    }
+
+    //Запись данных в TextView (температура, скорость, давление)
+    private void displayWeather(WeatherRequest weatherRequest) {
+        textTemp.setText(String.format("%.2f", weatherRequest.getMain().getTemp()) + "\u2109");
+        textSpeedWind.setText(String.format("%d", weatherRequest.getWind().getSpeed()) + " m/s");
+        textPressure.setText(String.format("%d", weatherRequest.getMain().getPressure()) + " hPa");
     }
 }

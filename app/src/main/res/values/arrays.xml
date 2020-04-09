@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="cities">
-        <item>Москва</item>
-        <item>Санкт-Петербург</item>
-        <item>Сочи</item>
-        <item>Новосибирск</item>
-        <item>Рязань</item>
-        <item>Владивосток</item>
-        <item>Краснодар</item>
-        <item>Омск</item>
-        <item>Тверь</item>
-        <item>Подольск</item>
-        <item>Курск</item>
-        <item>Орел</item>
-        <item>Шатура</item>
+        <item>Moscow</item>
+        <item>Vladivostok</item>
+        <item>Sochi</item>
+        <item>Kursk</item>
+        <item>Tver</item>
+        <item>Ryazan</item>
+        <item>Ufa</item>
+        <item>Omsk</item>
+        <item>Novosibirsk</item>
+        <item>Norilsk</item>
+        <item>Krasnodar</item>
+        <item>Samara</item>
+        <item>Kirov</item>
     </string-array>
 
 </resources>

@@ -37,10 +37,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_about_developer) {
             createDialogDeveloper();
         }
-        if(id == R.id.action_settings){
-                Intent intent = new Intent(MainActivity.this, Setting.class);
-                startActivity(intent); finish();
-        }
         return super.onOptionsItemSelected(item);
     }
 
