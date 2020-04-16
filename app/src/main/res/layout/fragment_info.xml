@@ -54,16 +54,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/temperature">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/znak_temperatyra"
-            android:layout_marginRight="@dimen/padding15"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <nikifor.tatarkin.myweatherfrarmentapp.myview.TempView
+            android:id="@+id/my_temp_view"
+            android:layout_width="150dp"
+            android:layout_height="38dp"
+            app:level="70"/>
     </LinearLayout>
 
     <LinearLayout

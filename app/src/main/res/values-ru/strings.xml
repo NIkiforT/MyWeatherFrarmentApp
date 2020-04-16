@@ -13,4 +13,7 @@
     <string name="error_name_city">Неправильное название города</string>
     <string name="about_the_developer">Об авторе</string>
     <string name="about_developer_description">Приложение разработано в учебных целях, а именно, чтобы разобраться с Activity, Макетами и Fragment, создать первый RecyclerView, поработать с компонентами приложения и познать материальный дизайн. \nЗдесь все выглядит не в едином стиле, т.к. мне охото потрогать всё. \n\n   Никифор. 2020</string>
+    <string name="exclamation">Error network</string>
+    <string name="press_button">Обновите запрос</string>
+    <string name="button">OK</string>
 </resources>

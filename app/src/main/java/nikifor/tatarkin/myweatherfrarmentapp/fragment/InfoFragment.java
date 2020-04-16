@@ -1,5 +1,7 @@
 package nikifor.tatarkin.myweatherfrarmentapp.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -12,14 +14,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -41,9 +42,7 @@ import nikifor.tatarkin.myweatherfrarmentapp.CoatContainer;
 import nikifor.tatarkin.myweatherfrarmentapp.Constants;
 import nikifor.tatarkin.myweatherfrarmentapp.R;
 import nikifor.tatarkin.myweatherfrarmentapp.model.WeatherRequest;
-import nikifor.tatarkin.myweatherfrarmentapp.recyclerView.TemperatureAdapter;
-
-import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
+import nikifor.tatarkin.myweatherfrarmentapp.myview.TempView;
 
 public class InfoFragment extends Fragment implements Constants {
     private static final String INDEX_CITY = "index";
@@ -58,8 +57,9 @@ public class InfoFragment extends Fragment implements Constants {
     private ImageView imageSpeedWind;
     private ImageView imagePressure;
     private TextView textTemp;
-
     private RecyclerView recyclerView;
+
+    private float tempC = 0.0f;
 
     //Фейковые данные для температуры на 3 дня.
     private String[] listTemperature = new String[]{"-", "-", "-"};
@@ -74,7 +74,6 @@ public class InfoFragment extends Fragment implements Constants {
         infoFragment.setArguments(args);
         return infoFragment;
     }
-
     // Получить индекс из списка (фактически из параметра)
     public int getIndex() {
         CoatContainer coatContainer = (CoatContainer) (Objects.requireNonNull(getArguments())
@@ -86,7 +85,7 @@ public class InfoFragment extends Fragment implements Constants {
         }
     }
 
-    public String getNameCity(){
+    String getNameCity(){
         CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
             try {
                 return coatContainer.cityName;
@@ -94,9 +93,8 @@ public class InfoFragment extends Fragment implements Constants {
                 return "-";
             }
     }
-
     //Получить информацию о том, нужно ли показывать скорость ветра
-    public boolean getVisibSpeed(){
+    private boolean getVisibSpeed(){
         CoatContainer coatContainer = (CoatContainer) (Objects.requireNonNull(getArguments())
                 .getSerializable(INDEX_CITY));
         try {
@@ -105,9 +103,8 @@ public class InfoFragment extends Fragment implements Constants {
             return true;
         }
     }
-
     //Получить информацию о том, нужно ли показывать давление
-    public boolean getVisibPressure(){
+    private boolean getVisibPressure(){
         CoatContainer coatContainer = (CoatContainer) (Objects.requireNonNull(getArguments())
                 .getSerializable(INDEX_CITY));
         try {
@@ -117,7 +114,7 @@ public class InfoFragment extends Fragment implements Constants {
         }
     }
 
-    public String getTemp(){
+    private String getTemp(){
         CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
         try {
             return coatContainer.temp;
@@ -125,7 +122,7 @@ public class InfoFragment extends Fragment implements Constants {
             return "-";
         }
     }
-    public String getSpeed(){
+    private String getSpeed(){
         CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
         try {
             return coatContainer.speed;
@@ -133,7 +130,7 @@ public class InfoFragment extends Fragment implements Constants {
             return "-";
         }
     }
-    public String getPressure(){
+    private String getPressure(){
         CoatContainer coatContainer = (CoatContainer) getArguments().getSerializable(INDEX_CITY);
         try {
             return coatContainer.pressure;
@@ -141,7 +138,6 @@ public class InfoFragment extends Fragment implements Constants {
             return "-";
         }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -154,11 +150,14 @@ public class InfoFragment extends Fragment implements Constants {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
-        initRecyclerView(view);
         setTextNameCity();
         setTextSpeed();
         setTextPressure();
         setTextTemp();
+
+        //CustomView Temper
+        TempView myTempView = view.findViewById(R.id.my_temp_view);
+        //myTempView.setLevel(tempC);
 
         //Закрузка данных о погоде с сервера.
         loadWeather(view);
@@ -171,22 +170,22 @@ public class InfoFragment extends Fragment implements Constants {
     }
 
     // Инциализация RecyclerView для показа температуры на3 дня.  + Декоратор
-    private void initRecyclerView(@NonNull View view) {
-        recyclerView = view.findViewById(R.id.recycler_view_temp);
-
-        //Декоратор - начало.
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), HORIZONTAL);
-        itemDecoration.setDrawable(getContext().getDrawable(R.drawable.separator_temperature));
-        recyclerView.addItemDecoration(itemDecoration);
-        //Декоратор - конец.
-
-        TemperatureAdapter adapter = new TemperatureAdapter(listTemperature);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-
-
-    }
+//    private void initRecyclerView(@NonNull View view) {
+//        recyclerView = view.findViewById(R.id.recycler_view_temp);
+//
+//        //Декоратор - начало.
+//        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), HORIZONTAL);
+//        itemDecoration.setDrawable(getContext().getDrawable(R.drawable.separator_temperature));
+//        recyclerView.addItemDecoration(itemDecoration);
+//        //Декоратор - конец.
+//
+//        TemperatureAdapter adapter = new TemperatureAdapter(listTemperature);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), HORIZONTAL, false);
+//        recyclerView.setLayoutManager(layoutManager);
+//        recyclerView.setAdapter(adapter);
+//
+//
+//    }
 
     //Инициализация полей
     private void initViews(@NonNull View view) {
@@ -197,7 +196,6 @@ public class InfoFragment extends Fragment implements Constants {
         imageSpeedWind = view.findViewById(R.id.speedWindImag);
         imagePressure = view.findViewById(R.id.pressureImag);
         textTemp = view.findViewById(R.id.temperature);
-
     }
 
     //Открытие браузера
@@ -223,7 +221,6 @@ public class InfoFragment extends Fragment implements Constants {
     private void setTextNameCity(){
         textNameCity.setText(getNameCity());
     }
-
     private void setTextTemp(){
         textTemp.setText(getTemp());
     }
@@ -233,7 +230,6 @@ public class InfoFragment extends Fragment implements Constants {
     private void setTextPressure(){
         textPressure.setText(getPressure());
     }
-
 
     //Определие скрыть/показать давление при открытии новой Activity.
     private void setVisibilityPressure() {
@@ -245,7 +241,6 @@ public class InfoFragment extends Fragment implements Constants {
         textSpeedWind.setVisibility(getVisibSpeed()? View.VISIBLE : View.GONE);
         imageSpeedWind.setVisibility(getVisibSpeed()? View.VISIBLE : View.GONE);
     }
-
 
     //Показать/Скрыть скорость ветка и давление при открытии фрагмента на той же активити- начало.
     @Subscribe
@@ -306,6 +301,8 @@ public class InfoFragment extends Fragment implements Constants {
                     }catch (Exception e){
                         Log.e(TAG, "Fail connection", e);
                         e.printStackTrace();
+                        //Отображение диалога об ошибке.
+                        displayAlertDialog();
                     }finally {
                         if (null != urlConnection) {
                             urlConnection.disconnect();
@@ -325,8 +322,42 @@ public class InfoFragment extends Fragment implements Constants {
 
     //Запись данных в TextView (температура, скорость, давление)
     private void displayWeather(WeatherRequest weatherRequest) {
-        textTemp.setText(String.format("%.2f", weatherRequest.getMain().getTemp()) + "\u2109");
+        //преобразование в градусы Цельсия.
+        String strTempK = String.format("%.2f", weatherRequest.getMain().getTemp());
+        tempC = Float.valueOf(strTempK.replace(',', '.')) - 273.15f;
+        textTemp.setText(String.valueOf(tempC) + " \u2103");
         textSpeedWind.setText(String.format("%d", weatherRequest.getWind().getSpeed()) + " m/s");
         textPressure.setText(String.format("%d", weatherRequest.getMain().getPressure()) + " hPa");
+
+        //Для передачи данных в TempView
+        //myTempView.setLevel(tempC);
+        //myTempView.invalidate();
+
+    }
+
+    //Создание AlertDialog, если данные не приходят с сервера.
+    private void displayAlertDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        // В билдере указываем заголовок окна (можно указывать как ресурс,
+        // так и строку)
+        builder.setTitle(R.string.exclamation)
+                // Указываем сообщение в окне (также есть вариант со
+                // строковым параметром)
+                .setMessage(R.string.press_button)
+                // Можно указать и пиктограмму
+                .setIcon(R.mipmap.ic_launcher_round)
+                // Из этого окна нельзя выйти кнопкой Back
+                .setCancelable(false)
+                // Устанавливаем кнопку (название кнопки также можно
+                // задавать строкой)
+                .setPositiveButton(R.string.button,
+                        // Ставим слушатель, нажатие будем обрабатывать
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Toast.makeText(getContext(), "Кнопка нажата", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

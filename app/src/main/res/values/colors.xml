@@ -6,4 +6,6 @@
     <color name="colorText">#0b202a</color>
     <color name="white">#ffffff</color>
     <color name="gray">#4E6E86</color>
+    <color name="tempViewColor">#8D60DEEA</color>
+    <color name="colorYellow">#FDFFDE00</color>
 </resources>

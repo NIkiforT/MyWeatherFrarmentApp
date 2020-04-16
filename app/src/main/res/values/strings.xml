@@ -12,4 +12,7 @@
     <string name="error_name_city">Incorrect city name</string>
     <string name="about_the_developer">About the developer</string>
     <string name="about_developer_description">The app was developed for educational purposes, namely, to understand Activity, Layouts, and Fragment, create the first RecyclerView, work with application components, and learn about material design. \nThere everything looks not in the same style, because I want to touch everything. \n\n Nikifor. 2020</string>
+    <string name="exclamation">Error network</string>
+    <string name="press_button">Update request</string>
+    <string name="button">OK</string>
 </resources>
